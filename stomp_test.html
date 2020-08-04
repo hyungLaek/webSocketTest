@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>stomp sample</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+</head>
+<body>
+
+    <div>
+        <input type="text" id="chatInput" class="chat">&nbsp
+        <button id="sendBtn">전송</button>
+    </div>
+
+
+<script>
+    var isStomp = false;
+    var socket
+    $(function() {
+        connect();
+    });
+
+    $('#chattinglistBtn').on('click', function(e) {
+       console.log('참여자 목록');
+    });
+
+    // 메세지전송
+    $('#sendBtn').on('click', function(e) {
+        e.preventDefault();
+        if(!isStomp && socket.readyState !== 1) return;
+
+        var msg = $('#chatInput').val();
+        console.log("mmmmmmmm>>"+msg);
+        if(isStomp){
+            socket.send('/TTT',{},JSON.stringify({id: 212, msg: msg}) );
+        }else{
+            socket.send(msg);
+        }
+
+    });
+
+
+    // SockJS 설정
+    function connect() {
+        socket = new SockJS('/websockethandler'); //Websocket Handler
+        var client = Stomp.over(socket);
+        isStomp = true;
+        socket = client;
+
+        client.connect({},function () {
+            console.log("Connected stompTest!");
+
+            //client.send('/TTT',{},"msg: Success");
+
+            client.subscribe('/topic/message', function (event) {
+                console.log("!!!!!!!!!!!!!!Event>>>", event);
+            });
+        });
+    }
+
+
+</script>
+
+</body>
+</html>
